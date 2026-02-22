@@ -29,10 +29,31 @@ export default function Navbar() {
 
             <div className="flex items-center gap-4">
                 {isAuthenticated ? (
-                    <button className="btn" style={{ fontWeight: 500 }} onClick={() => {
-                        localStorage.removeItem('isAuthenticated');
-                        window.location.reload();
-                    }}>Logout</button>
+                    <div className="flex items-center gap-3">
+                        {localStorage.getItem('userProfile') && (
+                            <img
+                                src={JSON.parse(localStorage.getItem('userProfile')).picture}
+                                alt="Profile"
+                                style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                            />
+                        )}
+                        <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                            {localStorage.getItem('userProfile') ? JSON.parse(localStorage.getItem('userProfile')).name.split(' ')[0] : 'User'}
+                        </span>
+                        <button className="btn" style={{ fontWeight: 500, fontSize: '0.8rem', padding: '0.25rem 0.5rem' }} onClick={async () => {
+                            try {
+                                if (cartItems.length > 0) {
+                                    await clearCart(); // Fix: Use destructured clearCart directly
+                                }
+                            } catch (e) {
+                                console.error("Error clearing cart on logout", e);
+                            } finally {
+                                localStorage.removeItem('isAuthenticated');
+                                localStorage.removeItem('userProfile');
+                                window.location.reload();
+                            }
+                        }}>Logout</button>
+                    </div>
                 ) : (
                     <button className="btn" style={{ fontWeight: 500 }} onClick={() => window.location.href = '/login'}>Login</button>
                 )}

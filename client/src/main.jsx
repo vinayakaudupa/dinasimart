@@ -3,8 +3,16 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+// We use a dummy client ID if the user hasn't provided one. 
+// A real deployment requires a valid Google Cloud Client ID.
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE";
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <App />
+    </GoogleOAuthProvider>
   </StrictMode>,
 )

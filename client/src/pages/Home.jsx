@@ -30,7 +30,7 @@ export default function Home() {
             <main className="container" style={{ padding: '2rem 1rem' }}>
 
                 <div style={{
-                    background: 'linear-gradient(135deg, var(--secondary) 0%, #f59e0b 100%)',
+                    background: 'var(--brand-gradient)',
                     borderRadius: 'var(--radius)',
                     padding: '2rem',
                     marginBottom: '2rem',

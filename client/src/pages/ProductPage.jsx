@@ -31,7 +31,7 @@ export default function ProductPage() {
 
     }, [id]);
 
-    const itemInfo = itemDetails || shops[0] || related.find(r => r.id == id) || { name: "...", image: "" };
+    const itemInfo = itemDetails || { name: "Loading...", image: "" };
 
     return (
         <div>
@@ -39,7 +39,7 @@ export default function ProductPage() {
             <div className="container" style={{ padding: '2rem 1rem' }}>
 
                 {/* Header with Search Result Name */}
-                <div className="flex items-center gap-4" style={{ marginBottom: '2rem' }}>
+                <div className="flex items-center gap-4" style={{ marginBottom: '2rem', minHeight: '80px' }}>
                     {itemInfo.image && <img src={itemInfo.image} style={{ width: '80px', height: '80px', borderRadius: '8px', objectFit: 'cover' }} />}
                     <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>
                         Results for {itemInfo.name}
