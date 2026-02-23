@@ -145,7 +145,7 @@ app.post('/api/cart/clear', (req, res) => {
 // Get Cart
 app.get('/api/cart', (req, res) => {
     const sql = `
-        SELECT ci.id, ci.quantity, ci.price, ci.shop_id, i.name, i.image, s.name as shop_name
+        SELECT ci.id, ci.item_id, ci.quantity, ci.price, ci.shop_id, i.name, i.image, s.name as shop_name
         FROM cart_items ci
         JOIN items i ON ci.item_id = i.id
         JOIN shops s ON ci.shop_id = s.id

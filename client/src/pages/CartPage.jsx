@@ -9,7 +9,8 @@ export default function CartPage() {
     const [deliveryTime, setDeliveryTime] = useState(0);
     const [timeLeft, setTimeLeft] = useState(0);
 
-    const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const safeCartItems = cartItems || [];
+    const cartTotal = safeCartItems.reduce((sum, item) => sum + ((item?.price || 0) * (item?.quantity || 1)), 0);
     const handlingFee = 20;
     const deliveryCharge = 45;
     const finalTotal = cartTotal + handlingFee + deliveryCharge;
@@ -98,7 +99,7 @@ export default function CartPage() {
             <div className="container" style={{ padding: '2rem 1rem' }}>
                 <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>My Cart</h2>
 
-                {cartItems.length === 0 ? (
+                {safeCartItems.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
                         <h3 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--gray-500)', letterSpacing: '2px' }}>
                             EMPTY CART
@@ -111,14 +112,14 @@ export default function CartPage() {
                     <div className="flex flex-col md:flex-row gap-6 items-start">
                         {/* Items List */}
                         <div className="flex flex-col gap-4" style={{ flex: 2, width: '100%' }}>
-                            {cartItems.map((item) => (
-                                <div key={item.id} className="card flex flex-col sm:flex-row justify-between items-center gap-4">
+                            {safeCartItems.map((item) => (
+                                <div key={item?.id} className="card flex flex-col sm:flex-row justify-between items-center gap-4">
                                     <div className="flex items-center gap-4 w-full sm:w-auto" style={{ flex: 1 }}>
-                                        <img src={item.image} alt={item.name} style={{ width: '60px', height: '60px', borderRadius: '4px', objectFit: 'cover' }} />
+                                        <img src={item?.image} alt={item?.name} style={{ width: '60px', height: '60px', borderRadius: '4px', objectFit: 'cover' }} />
                                         <div>
-                                            <p style={{ fontWeight: 600 }}>{item.name}</p>
-                                            <p style={{ color: 'var(--gray-500)', fontSize: '0.9rem' }}>from {item.shop_name}</p>
-                                            <p style={{ fontWeight: 'bold', color: 'var(--primary)' }}>₹{item.price}</p>
+                                            <p style={{ fontWeight: 600 }}>{item?.name}</p>
+                                            <p style={{ color: 'var(--gray-500)', fontSize: '0.9rem' }}>from {item?.shop_name}</p>
+                                            <p style={{ fontWeight: 'bold', color: 'var(--primary)' }}>₹{item?.price}</p>
                                         </div>
                                     </div>
 
@@ -127,22 +128,22 @@ export default function CartPage() {
                                             <button
                                                 className="btn"
                                                 style={{ background: 'var(--gray-200)', padding: '0.25rem' }}
-                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                onClick={() => updateQuantity(item?.id, (item?.quantity || 1) - 1)}
                                             >
                                                 <Minus size={16} />
                                             </button>
-                                            <span style={{ fontWeight: 600, minWidth: '20px', textAlign: 'center' }}>{item.quantity}</span>
+                                            <span style={{ fontWeight: 600, minWidth: '20px', textAlign: 'center' }}>{item?.quantity}</span>
                                             <button
                                                 className="btn"
                                                 style={{ background: 'var(--gray-200)', padding: '0.25rem' }}
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                onClick={() => updateQuantity(item?.id, (item?.quantity || 1) + 1)}
                                             >
                                                 <Plus size={16} />
                                             </button>
                                         </div>
 
                                         <div style={{ fontWeight: 'bold', fontSize: '1.2rem', minWidth: '80px', textAlign: 'right' }}>
-                                            ₹{item.price * item.quantity}
+                                            ₹{(item?.price || 0) * (item?.quantity || 1)}
                                         </div>
                                     </div>
                                 </div>
@@ -152,9 +153,7 @@ export default function CartPage() {
                                 className="btn flex items-center justify-center gap-2"
                                 style={{ padding: '0.75rem', fontSize: '1rem', background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', alignSelf: 'flex-start' }}
                                 onClick={() => {
-                                    if (window.confirm("Are you sure you want to clear your cart?")) {
-                                        clearCart();
-                                    }
+                                    clearCart();
                                 }}
                             >
                                 <Trash2 size={18} /> Clear Cart

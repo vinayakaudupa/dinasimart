@@ -4,8 +4,8 @@ import { useCart } from '../context/CartContext';
 import SearchBar from './SearchBar';
 
 export default function Navbar() {
-    const { totalItems, cartItems } = useCart();
-    const totalPrice = cartItems.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0).toFixed(0);
+    const { totalItems, cartItems, clearCart } = useCart();
+    const totalPrice = (cartItems || []).reduce((sum, item) => sum + (item?.price || 0) * (item?.quantity || 1), 0).toFixed(0);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
