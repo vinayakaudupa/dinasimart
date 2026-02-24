@@ -141,6 +141,45 @@ app.post('/api/cart/clear', (req, res) => {
     });
 });
 
+// Place Order
+app.post('/api/orders', (req, res) => {
+    const { orderData, totalPrice } = req.body;
+
+    // Convert orderData object/array to JSON string securely for SQLite
+    const orderDataString = JSON.stringify(orderData);
+
+    db.run("INSERT INTO orders (order_data, total_price) VALUES (?, ?)", [orderDataString, totalPrice], function (err) {
+        if (err) return res.status(400).json({ "error": err.message });
+
+        const orderId = this.lastID;
+
+        // Clear cart after placing order
+        db.run("DELETE FROM cart_items", [], function (err) {
+            if (err) console.error("Error clearing cart after order:", err.message);
+
+            res.json({
+                "message": "Order placed successfully",
+                "data": { id: orderId }
+            });
+        });
+    });
+});
+
+// Get Order History
+app.get('/api/orders', (req, res) => {
+    const sql = "SELECT * FROM orders ORDER BY created_at DESC";
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            res.status(400).json({ "error": err.message });
+            return;
+        }
+        res.json({
+            "message": "success",
+            "data": rows
+        });
+    });
+});
+
 
 // Get Cart
 app.get('/api/cart', (req, res) => {

@@ -33,12 +33,22 @@ export default function Home() {
                     background: 'var(--brand-gradient)',
                     borderRadius: 'var(--radius)',
                     padding: '2rem',
-                    marginBottom: '2rem',
+                    marginBottom: '1rem',
                     color: 'white',
                     boxShadow: 'var(--shadow-md)'
                 }}>
                     <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Welcome to DinasiMart</h2>
                     <p>Get your daily essentials delivered in minutes.</p>
+                </div>
+
+                <div className="flex gap-4" style={{ marginBottom: '2rem' }}>
+                    <button
+                        className="btn btn-primary flex items-center gap-2"
+                        onClick={() => navigate('/orders')}
+                        style={{ padding: '0.75rem 1.5rem', fontSize: '1.1rem' }}
+                    >
+                        🛍️ View Your Orders
+                    </button>
                 </div>
 
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>Shop by Category</h3>

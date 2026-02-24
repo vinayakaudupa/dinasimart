@@ -15,14 +15,36 @@ export default function CartPage() {
     const deliveryCharge = 45;
     const finalTotal = cartTotal + handlingFee + deliveryCharge;
 
-    const handlePlaceOrder = () => {
-        // Random time between 14 and 45 minutes
-        const time = Math.floor(Math.random() * (45 - 14 + 1)) + 14;
-        setDeliveryTime(time);
-        setTimeLeft(time * 60); // in seconds for the progress bar
-        setOrderPlaced(true);
-        // We could also call clearCart() here depending on backend logic, 
-        // but let's just clear UI state or keep it for receipt display.
+    const handlePlaceOrder = async () => {
+        try {
+            // Send order to backend
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderData: safeCartItems,
+                    totalPrice: finalTotal
+                })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                // Instantly clear frontend context since backend cleared DB
+                clearCart();
+
+                // Start delivery animation
+                const time = Math.floor(Math.random() * (45 - 14 + 1)) + 14;
+                setDeliveryTime(time);
+                setTimeLeft(time * 60);
+                setOrderPlaced(true);
+            } else {
+                console.error("Failed to place order:", data.error);
+                alert("Failed to place order. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error placing order:", error);
+            alert("Network error while placing order.");
+        }
     };
 
     // Timer effect for animation

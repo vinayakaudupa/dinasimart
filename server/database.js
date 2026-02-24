@@ -59,6 +59,14 @@ function initDatabase() {
             FOREIGN KEY(shop_id) REFERENCES shops(id)
         )`);
 
+        // Orders
+        db.run(`CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_data TEXT,
+            total_price REAL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
         // Seed data if empty
         db.get("SELECT count(*) as count FROM categories", [], (err, row) => {
             if (row.count === 0) {

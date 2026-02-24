@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, ShoppingCart } from 'lucide-react';
+import { Search, ShoppingCart, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import SearchBar from './SearchBar';
 
@@ -57,6 +57,14 @@ export default function Navbar() {
                 ) : (
                     <button className="btn" style={{ fontWeight: 500 }} onClick={() => window.location.href = '/login'}>Login</button>
                 )}
+                <button
+                    className="btn flex items-center gap-2"
+                    style={{ padding: '0.5rem 1rem', background: 'var(--gray-100)', color: 'var(--dark)' }}
+                    onClick={() => window.location.href = '/orders'}
+                >
+                    <Package size={20} color="var(--primary)" />
+                    <span style={{ fontWeight: 600 }}>Orders</span>
+                </button>
                 <button
                     className="btn btn-primary flex items-center gap-2"
                     style={{ padding: '0.5rem 1rem' }}

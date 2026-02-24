@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import ProductPage from './pages/ProductPage';
 import CartPage from './pages/CartPage';
+import OrdersPage from './pages/OrdersPage';
 import { CartProvider } from './context/CartContext';
 
 function ProtectedRoute({ children }) {
@@ -29,6 +30,11 @@ function App() {
           <Route path="/cart" element={
             <ProtectedRoute>
               <CartPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders" element={
+            <ProtectedRoute>
+              <OrdersPage />
             </ProtectedRoute>
           } />
         </Routes>
