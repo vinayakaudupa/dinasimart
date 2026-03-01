@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { Bike, ChevronRight } from 'lucide-react';
 
 export default function Home() {
     const [categories, setCategories] = useState([]);
     const [items, setItems] = useState([]);
     const navigate = useNavigate();
+    const { orderPlaced, timeLeft } = useCart();
 
     useEffect(() => {
         fetch('/api/categories')
@@ -40,6 +43,43 @@ export default function Home() {
                     <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Welcome to DinasiMart</h2>
                     <p>Get your daily essentials delivered in minutes.</p>
                 </div>
+
+                {/* Persistent Order Tracking Banner */}
+                {orderPlaced && timeLeft > 0 && (
+                    <div
+                        onClick={() => navigate('/cart')}
+                        style={{
+                            background: '#e8f5e9',
+                            border: '1px solid #4ade80',
+                            borderRadius: 'var(--radius)',
+                            padding: '1rem',
+                            marginBottom: '2rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            cursor: 'pointer',
+                            boxShadow: 'var(--shadow-sm)'
+                        }}
+                    >
+                        <div className="flex items-center gap-3">
+                            <div style={{
+                                background: 'white',
+                                padding: '0.5rem',
+                                borderRadius: '50%',
+                                boxShadow: 'var(--shadow-sm)'
+                            }}>
+                                <Bike size={24} color="var(--primary)" />
+                            </div>
+                            <div>
+                                <h3 style={{ fontWeight: 700, color: 'var(--dark)' }}>Upcoming Delivery</h3>
+                                <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem' }}>
+                                    Arriving in ~{Math.ceil(timeLeft / 60)} minutes
+                                </p>
+                            </div>
+                        </div>
+                        <ChevronRight size={20} color="var(--gray-500)" />
+                    </div>
+                )}
 
                 <div className="flex gap-4" style={{ marginBottom: '2rem' }}>
                     <button

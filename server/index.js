@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./database');
+const { Category, Item, Shop } = require('./models');
 
 const app = express();
 const PORT = 3001;
@@ -16,16 +17,9 @@ app.get('/', (req, res) => {
 
 // Get all categories
 app.get('/api/categories', (req, res) => {
-    const sql = "SELECT * FROM categories";
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": rows
-        })
+    res.json({
+        "message": "success",
+        "data": Category.findAll()
     });
 });
 
@@ -35,63 +29,33 @@ app.get('/api/search', (req, res) => {
     if (!query) {
         return res.json({ data: [] });
     }
-    const sql = `SELECT * FROM items WHERE name LIKE ? LIMIT 10`;
-    db.all(sql, [`%${query}%`], (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": rows
-        });
+    res.json({
+        "message": "success",
+        "data": Item.search(query)
     });
 });
-
 
 // Get shops that have a specific item, sorted by distance
 app.get('/api/items/:id/shops', (req, res) => {
     const itemId = req.params.id;
-    const sql = `
-        SELECT s.*, si.price, si.stock 
-        FROM shops s
-        JOIN shop_items si ON s.id = si.shop_id
-        WHERE si.item_id = ?
-        ORDER BY s.distance ASC
-    `;
-    db.all(sql, [itemId], (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": rows
-        });
+    res.json({
+        "message": "success",
+        "data": Shop.findByItemId(itemId)
     });
 });
 
 // Get related items (same category)
 app.get('/api/items/:id/related', (req, res) => {
     const itemId = req.params.id;
-    // First get the category of the item
-    db.get("SELECT category_id FROM items WHERE id = ?", [itemId], (err, row) => {
-        if (err || !row) {
-            res.status(400).json({ "error": "Item not found" });
-            return;
-        }
-        const categoryId = row.category_id;
-        const sql = `SELECT * FROM items WHERE category_id = ? AND id != ? LIMIT 5`;
-        db.all(sql, [categoryId, itemId], (err, rows) => {
-            if (err) {
-                res.status(400).json({ "error": err.message });
-                return;
-            }
-            res.json({
-                "message": "success",
-                "data": rows
-            });
-        });
+    const item = Item.findById(itemId);
+
+    if (!item) {
+        return res.status(400).json({ "error": "Item not found" });
+    }
+
+    res.json({
+        "message": "success",
+        "data": Item.findRelated(itemId, item.category_id)
     });
 });
 
@@ -183,51 +147,52 @@ app.get('/api/orders', (req, res) => {
 
 // Get Cart
 app.get('/api/cart', (req, res) => {
-    const sql = `
-        SELECT ci.id, ci.item_id, ci.quantity, ci.price, ci.shop_id, i.name, i.image, s.name as shop_name
-        FROM cart_items ci
-        JOIN items i ON ci.item_id = i.id
-        JOIN shops s ON ci.shop_id = s.id
-    `;
-    db.all(sql, [], (err, rows) => {
+    db.all("SELECT * FROM cart_items", [], (err, rows) => {
         if (err) {
             res.status(400).json({ "error": err.message });
             return;
         }
+
+        // Map in-memory item and shop names onto the SQL items
+        const cartWithDetails = rows.map(ci => {
+            const item = Item.findById(ci.item_id);
+            const shop = Shop.findById(ci.shop_id);
+            return {
+                id: ci.id,
+                item_id: ci.item_id,
+                quantity: ci.quantity,
+                price: ci.price,
+                shop_id: ci.shop_id,
+                name: item ? item.name : 'Unknown Item',
+                image: item ? item.image : '',
+                shop_name: shop ? shop.name : 'Unknown Shop'
+            };
+        });
+
         res.json({
             "message": "success",
-            "data": rows
+            "data": cartWithDetails
         });
     });
 });
 
 // Get all items (for Home page display)
 app.get('/api/items', (req, res) => {
-    const sql = "SELECT * FROM items";
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": rows
-        });
+    res.json({
+        "message": "success",
+        "data": Item.findAll()
     });
 });
 
 // Get single item
 app.get('/api/items/:id', (req, res) => {
-    const sql = "SELECT * FROM items WHERE id = ?";
-    db.get(sql, [req.params.id], (err, row) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": row
-        });
+    const item = Item.findById(req.params.id);
+    if (!item) {
+        return res.status(400).json({ "error": "Item not found" });
+    }
+    res.json({
+        "message": "success",
+        "data": item
     });
 });
 

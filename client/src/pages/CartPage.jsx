@@ -4,10 +4,7 @@ import { useCart } from '../context/CartContext';
 import { Plus, Minus, Trash2, Bike, CheckCircle } from 'lucide-react';
 
 export default function CartPage() {
-    const { cartItems, updateQuantity, clearCart } = useCart();
-    const [orderPlaced, setOrderPlaced] = useState(false);
-    const [deliveryTime, setDeliveryTime] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(0);
+    const { cartItems, updateQuantity, clearCart, orderPlaced, deliveryTime, timeLeft, setOrderDelivery, setOrderPlaced } = useCart();
 
     const safeCartItems = cartItems || [];
     const cartTotal = safeCartItems.reduce((sum, item) => sum + ((item?.price || 0) * (item?.quantity || 1)), 0);
@@ -32,11 +29,9 @@ export default function CartPage() {
                 // Instantly clear frontend context since backend cleared DB
                 clearCart();
 
-                // Start delivery animation
+                // Start global delivery animation
                 const time = Math.floor(Math.random() * (45 - 14 + 1)) + 14;
-                setDeliveryTime(time);
-                setTimeLeft(time * 60);
-                setOrderPlaced(true);
+                setOrderDelivery(time);
             } else {
                 console.error("Failed to place order:", data.error);
                 alert("Failed to place order. Please try again.");
@@ -46,19 +41,6 @@ export default function CartPage() {
             alert("Network error while placing order.");
         }
     };
-
-    // Timer effect for animation
-    useEffect(() => {
-        let timer;
-        if (orderPlaced && timeLeft > 0) {
-            timer = setInterval(() => {
-                setTimeLeft((prev) => prev - 1);
-            }, 100); // 100ms instead of 1000ms just to make the animation visible over a short debug window 
-            // Wait, user wants an actual timer but realistic. Let's make it 1000ms (1s).
-            // Actually, waiting 14 mins to test is long. Let's speed it up or just use strictly 1s for realism.
-        }
-        return () => clearInterval(timer);
-    }, [orderPlaced, timeLeft]);
 
     // Calculate percentage for bike position (0 to 100)
     const progressPercent = deliveryTime > 0
@@ -106,9 +88,16 @@ export default function CartPage() {
                             </div>
                         </div>
 
-                        <p style={{ color: 'var(--gray-500)' }}>
+                        <p style={{ color: 'var(--gray-500)', marginBottom: '1.5rem' }}>
                             Your rider has picked up the order and is on the way.
                         </p>
+
+                        <button className="btn btn-primary" onClick={() => {
+                            setOrderPlaced(false);
+                            window.location.href = '/orders';
+                        }}>
+                            View Order Details
+                        </button>
                     </div>
                 </div>
             </div>

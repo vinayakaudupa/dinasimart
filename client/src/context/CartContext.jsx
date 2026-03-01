@@ -8,6 +8,17 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
 
+    // Global Order Delivery State
+    const [orderPlaced, setOrderPlaced] = useState(false);
+    const [deliveryTime, setDeliveryTime] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(0);
+
+    const setOrderDelivery = (timeInMinutes) => {
+        setDeliveryTime(timeInMinutes);
+        setTimeLeft(timeInMinutes * 60);
+        setOrderPlaced(true);
+    };
+
     const fetchCart = async () => {
         try {
             const res = await fetch('/api/cart');
@@ -74,8 +85,25 @@ export const CartProvider = ({ children }) => {
         fetchCart();
     }, []);
 
+    // Global Timer effect for animation/tracking
+    useEffect(() => {
+        let timer;
+        if (orderPlaced && timeLeft > 0) {
+            timer = setInterval(() => {
+                setTimeLeft((prev) => prev - 1);
+            }, 100); // Note: 100ms for fast testing/debug visibility, 1000ms for realistic seconds.
+        } else if (orderPlaced && timeLeft <= 0) {
+            // Optional: Auto reset when timer hits 0
+            // setOrderPlaced(false);
+        }
+        return () => clearInterval(timer);
+    }, [orderPlaced, timeLeft]);
+
     return (
-        <CartContext.Provider value={{ cartItems, totalItems, addToCart, updateQuantity, clearCart }}>
+        <CartContext.Provider value={{
+            cartItems, totalItems, addToCart, updateQuantity, clearCart,
+            orderPlaced, deliveryTime, timeLeft, setOrderDelivery, setOrderPlaced
+        }}>
             {children}
         </CartContext.Provider>
     );
